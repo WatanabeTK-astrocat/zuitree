@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.tsv": "tsv",
+        "*.html": "html",
+        "random": "cpp"
+    }
+}
