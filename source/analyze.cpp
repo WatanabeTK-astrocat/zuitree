@@ -1,5 +1,5 @@
 /******************************************************************************
- analyze.cpp: practice 1
+ analyze.cpp
  Taichi Kuriyama
 ******************************************************************************/
 
@@ -21,6 +21,7 @@ double calc_kinetic_energy(const int n, const double4 x[restrict], const double3
     return K;
 }
 
+// needs parallelization using GPU
 double calc_potential_energy(const int n, const double4 x[restrict], const double eps2) {
     double W = 0.0;
     for (int i = 0; i < n - 1; i++) {

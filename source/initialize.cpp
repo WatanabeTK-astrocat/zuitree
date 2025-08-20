@@ -1,5 +1,5 @@
 /******************************************************************************
- initialize.cpp: practice 1
+ initialize.cpp
  Taichi K. Watanabe
 ******************************************************************************/
 
@@ -13,6 +13,15 @@
 #include "type.hpp"
 #include "analyze.hpp"
 
+/**
+ * @brief Initializes particle positions and velocities for a spherical distribution.
+ *
+ * @param n Number of particles.
+ * @param x Array of particle positions, size n. Return value.
+ * @param v Array of particle velocities, size n. Return value.
+ * @param r_v Virial ratio.
+ * @param eps2 Softening parameter squared.
+ */
 void make_spherical_df(const int n, double4 x[restrict], double3 v[restrict], const double r_v, const double eps2) {
     std::random_device rnd; /* get seed from device random generator */
     std::mt19937 mt(rnd()); /* set seed for Mersenne Twister */
@@ -23,7 +32,7 @@ void make_spherical_df(const int n, double4 x[restrict], double3 v[restrict], co
         /* Total mass (M) = 1 */
         x[i].w = 1.0 / n;
 
-        /* Position: generate [-1, 1] double with MT, and then filter*/
+        /* Position: generate uniform distribution [-1, 1] with MT, and then filter */
         while (true) {
             double tmp_x = uni_dist(mt);
             double tmp_y = uni_dist(mt);

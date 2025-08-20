@@ -5,6 +5,8 @@
 
 #pragma once
 
+// structs with 2, 3, or 4 floats or doubles to represent 2D/3D/4D vectors
+
 typedef struct {
     float x, y;
 } float2;

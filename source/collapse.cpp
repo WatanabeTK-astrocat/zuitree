@@ -16,17 +16,17 @@
 #include "treenode.hpp"
 
 /**
- * @brief Calculate the gravitational force exerted on i from j
- * note that a needs to be referenced
- * 
- * @param a Return value of Gravitational force vector
- * @param dx Displacement vector x_j - x_i
- * @param r2 Squared distance |x_j - x_i|^2
- * @param mj Mass of the j body m_j
- * 
+ * @brief Calculates the gravitational force exerted on i from j
+ * note that a (return value) needs to be referenced
+ *
+ * @param a     Gravitational force vector, return value.
+ * @param dx    Displacement vector x_j - x_i
+ * @param r2    Squared distance |x_j - x_i|^2
+ * @param mj    Mass of the j body m_j
+ *
  */
 void grav_force(double3 &a, const double3 dx, const double r2, const double mj) {
-    double r1i = 1.0 / std::sqrt(r2);
+    double r1i = 1.0 / std::sqrt(r2); // Is optimization working?
     double r2i = r1i * r1i; // Optimization to multiply 2 variables at once, interchanging this
     double r1im = mj * r1i;
     double r3im = r1im * r2i;
@@ -36,6 +36,14 @@ void grav_force(double3 &a, const double3 dx, const double r2, const double mj) 
     a.z += dx.z * r3im;
 }
 
+/**
+ * @brief Calculates the gravitational forces for all particles using the direct method
+ * 
+ * @param a     Acceleration vectors, size n. Return value.
+ * @param n     Number of particles.
+ * @param x     Position vectors, size n.
+ * @param eps2  Softening parameter squared.
+ */
 void calc_forces_direct(double3 a[restrict], const int n, const double4 x[restrict], const double eps2) {
 #pragma acc data present(a[0:n], x[0:n])
     {
@@ -77,7 +85,7 @@ void set_node_param(NODE *node, const double x, const double y, const double z, 
 }
 
 void create_root_node(NODE *root_node, const int n, const double4 x[restrict], const double theta) {
-#pragma acc data present(x[0:n][0:3])
+#pragma acc data present(x[0:n])
     {
         double3 minx{}, maxx{};
         minx.x = x[0].x;
@@ -252,16 +260,24 @@ void calc_force_iterative(NODE *node, double3 a[restrict], const int i_particle,
     }
 }
 
-/*
-各力の計算 NlogN:
-木構造の作成
-    各ノードには、そのノードが相当する領域のxyz一辺の長さのdouble、そこに含まれる質点のid(なければ-1)がメンバとなる
-    各質点に関して、(N)
-        親ノードに質点を追加しようとする
-            できなければそのノードを分割、そのうち二つに元あった質点と今入れようとした質点を入れる(リンクの追加と新しい重心・総質量の計算) (log N)
-    各質点に関して、(N)
-        全ての領域の葉に関してDFS/BFS的に、(下限はシータクラテリオン)セル(もしくは質点)との相互作用を計算(logN?)
-*/
+/**
+ * @brief Calculates the gravitational forces for all particles using the tree method
+ * 
+ * @param a     Acceleration vectors, size n. Return value.
+ * @param n     Number of particles.
+ * @param x     Position vectors, size n.
+ * @param eps2  Softening parameter squared.
+ * 
+ * 各力の計算 NlogN:
+ * 木構造の作成
+ * 各ノードには、そのノードが相当する領域のxyz一辺の長さのdouble、そこに含まれる質点のid(なければ-1)がメンバとなる
+ * 各質点に関して、(N)
+ *     親ノードに質点を追加しようとする
+ *     できなければそのノードを分割、そのうち二つに元あった質点と今入れようとした質点を入れる(リンクの追加と新しい重心・総質量の計算) (log N)
+ * 各質点に関して、(N)
+ *     全ての領域の葉に関してDFS/BFS的に、(下限はシータクラテリオン)セル(もしくは質点)との相互作用を計算 (logN)
+ * 
+ */
 void calc_forces_tree(double3 a[restrict], const int n, const double4 x[restrict], const double eps2, const double theta) {
 #pragma acc data present(a[0:n], x[0:n])
     {

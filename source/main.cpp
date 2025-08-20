@@ -1,5 +1,5 @@
 /******************************************************************************
- main.cpp: practice 1
+ main.cpp
  Taichi K. Watanabe
 ******************************************************************************/
 
@@ -19,6 +19,16 @@
 #include "gnuplot.hpp"
 #include "initialize.hpp"
 
+/**
+ * @brief Exports a simple snapshot of the current simulation state.
+ *
+ * @param outputfile_realtime The output file stream for real-time data.
+ * @param t The current time.
+ * @param n The number of particles.
+ * @param x The positions of the particles, size n.
+ * @param v The velocities of the particles, size n.
+ * @param eps2 The softening parameter squared.
+ */
 void export_simple_snapshot(std::ofstream &outputfile_realtime, const double t, const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
     double K = calc_kinetic_energy(n, x, v, eps2);
     double W = calc_potential_energy(n, x, eps2);
@@ -119,7 +129,7 @@ int main() {
 
             export_simple_snapshot(outputfile_realtime, t, n, x, v, eps2);
 
-            next_t_out = t + T_out;
+            next_t_out = t + T_out; // it is like this because we want to output data every T_out time
             if (animation_bool) {
                 animated_snapshot(&gp, n, t, x);
                 // usleep(10000);

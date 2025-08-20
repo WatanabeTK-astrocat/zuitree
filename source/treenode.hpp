@@ -1,5 +1,5 @@
 /******************************************************************************
- treenode.hpp: practice 1
+ treenode.hpp
  Taichi K. Watanabe
 ******************************************************************************/
 
@@ -7,6 +7,7 @@
 
 #include "type.hpp"
 
+// tree structure node for the tree method
 typedef struct _NODE {
     double3 x;   // left bottom down poisition
     double4 cx;  // center of mass position
