@@ -10,6 +10,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 
 #include "analyze.hpp"
 #include "leapfrog.hpp"
@@ -18,10 +19,10 @@
 
 //const int NMAX = 16384;
 
-void export_snapshot(FILE *fp, const double t, const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
+void export_simple_snapshot(std::ofstream &outputfile_realtime, const double t, const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
     double K = calc_kinetic_energy(n, m, v, eps2);
     double W = calc_potential_energy(n, m, x, eps2);
-    fprintf(fp, "%lf, %lf, %lf, %lf, %lf\n", t, K, W, K + W, -1.0 * K / W);
+    outputfile_realtime << t << ", " << K << ", " << W << ", " << K + W << ", " << -1.0 * K / W << std::endl;
 }
 
 int main() {
@@ -68,12 +69,12 @@ int main() {
 
     const double e_start = calc_total_energy(n, m, x, v, eps2); /* Start system energy */
 
-    FILE *gp, *fp; /* animation window and realtime analyze file */
+    FILE *gp; /* animation window and realtime analyze file */
     if (animation_bool) {
         open_window(&gp);
     }
-    fp = fopen("./output-realtime.csv", "w");
-    fprintf(fp, "%s\n", "t, K, W, E, v_r");
+    std::ofstream outputfile_realtime("./output/output-realtime.csv");
+    outputfile_realtime << "t, K, W, E, v_r" << std::endl;
 
     const std::chrono::system_clock::time_point time_start = std::chrono::system_clock::now();  // start time measurement
 
@@ -85,7 +86,7 @@ int main() {
 
     leap_frog_start(n, m, x, v, a, dt, eps2, theta, tree_bool);
 
-    export_snapshot(fp, t, n, m, x, v, eps2);
+    export_simple_snapshot(outputfile_realtime, t, n, m, x, v, eps2);
 
     while (t < T_end) {
         /* advance time by one timestep */
@@ -95,7 +96,7 @@ int main() {
             /* visualize */
 #pragma acc update host(x[0:n][0:3], v[0:n][0:3])
 
-            export_snapshot(fp, t, n, m, x, v, eps2);
+            export_simple_snapshot(outputfile_realtime, t, n, m, x, v, eps2);
 
             next_t_out = t + T_out;
             if (animation_bool) {
@@ -118,7 +119,7 @@ int main() {
     if (animation_bool) {
         close_window(&gp);
     }
-    fclose(fp);
+    outputfile_realtime.close();
 
     const double e_end = calc_total_energy(n, m, x, v, eps2);                                                       /* End system energy */
     const double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() / 1000.0; /* elapsed time*/
