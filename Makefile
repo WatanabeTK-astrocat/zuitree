@@ -65,6 +65,7 @@ EXEC		= ./bin/collapse
 all:	$(EXEC)
 
 $(EXEC): $(OBJ) $(LIBS)
+	@mkdir -p ./bin
 	$(CXX) $(STD) $(CXXFLAGS) $(ARGS) -o $@ $(OBJ) $(LDFLAGS)
 
 $(BUILD_DIR)/%.o:	%.cpp
