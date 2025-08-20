@@ -29,7 +29,7 @@ void calc_force(const int n, const double m[restrict], const double x[restrict][
                 double r1 = x[j][1] - x[i][1];
                 double r2 = x[j][2] - x[i][2];
 
-                double d2 = r0 * r0 + r1 * r1 + r2 * r2 + eps2;
+                double d2 = eps2 + r0 * r0 + r1 * r1 + r2 * r2;
                 double rinv = 1.0 / std::sqrt(d2);
                 double r3inv = rinv * rinv * rinv;
 
@@ -207,7 +207,7 @@ void calc_force_iterative(NODE *node, const int i_particle, const int n, const d
                 double r1 = node->cx[1] - x[i_particle][1];
                 double r2 = node->cx[2] - x[i_particle][2];
 
-                double d2 = r0 * r0 + r1 * r1 + r2 * r2 + eps2;
+                double d2 = eps2 + r0 * r0 + r1 * r1 + r2 * r2;
 
                 if (node->particle > -1 || node->lt2 < d2) {
                     /* the cell is far from the i_particle */
