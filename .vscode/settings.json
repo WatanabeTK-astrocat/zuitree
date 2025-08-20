@@ -2,6 +2,7 @@
     "files.associations": {
         "*.tsv": "tsv",
         "*.html": "html",
-        "random": "cpp"
+        "random": "cpp",
+        "chrono": "cpp"
     }
 }
