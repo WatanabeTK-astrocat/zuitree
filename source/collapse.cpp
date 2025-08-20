@@ -3,6 +3,10 @@
  Taichi K. Watanabe
 ******************************************************************************/
 
+#ifndef restrict
+#define restrict
+#endif
+
 // #include <omp.h>
 
 #include <cmath>

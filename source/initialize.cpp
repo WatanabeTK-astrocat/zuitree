@@ -3,12 +3,16 @@
  Taichi K. Watanabe
 ******************************************************************************/
 
+#ifndef restrict
+#define restrict
+#endif
+
 #include <cmath>
 #include <random>
 
 #include "analyze.hpp"
 
-void make_spherical_df(const int n, double m[], double x[][3], double v[][3], const double r_v, const double eps2) {
+void make_spherical_df(const int n, double m[restrict], double x[restrict][3], double v[restrict][3], const double r_v, const double eps2) {
     std::random_device rnd; /* get seed from device random generator */
     std::mt19937 mt(rnd()); /* set seed for Mersenne Twister */
 

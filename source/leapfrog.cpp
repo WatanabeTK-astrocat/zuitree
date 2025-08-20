@@ -3,6 +3,10 @@
  Taichi K. Watanabe
 ******************************************************************************/
 
+#ifndef restrict
+#define restrict
+#endif
+
 #include "collapse.hpp"
 
 void leap_frog_start(const int n, const double m[restrict], double x[restrict][3], double v[restrict][3], double a[restrict][3], const double dt, const double eps2, const double theta, const int tree_bool) {
