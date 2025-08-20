@@ -3,7 +3,13 @@
  Taichi K. Watanabe
 ******************************************************************************/
 
+#ifndef restrict
+#define restrict
+#endif
+
 #include <iostream>
+
+#include "type.hpp"
 
 const double VMAX = 1.5; /* limit of variables in window */
 const int TERMINAL_SIZE = 800;
@@ -26,11 +32,11 @@ void close_window(FILE **gp) {
     pclose(*gp);
 }
 
-void animated_snapshot(FILE **gp, const int n, const double t, const double x[][3]) {
+void animated_snapshot(FILE **gp, const int n, const double t, const double4 x[restrict]) {
     fprintf(*gp, "set key title \"%f\"\n", t);
     fprintf(*gp, "plot '-' with points pointtype 0 notitle \n");
     for (int i = 0; i <= n; i++) {
-        fprintf(*gp, "%f\t%f\n", x[i][0], x[i][1]);
+        fprintf(*gp, "%f\t%f\n", x[i].x, x[i].y);
     }
     fprintf(*gp, "e\n");
 }

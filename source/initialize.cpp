@@ -10,9 +10,10 @@
 #include <cmath>
 #include <random>
 
+#include "type.hpp"
 #include "analyze.hpp"
 
-void make_spherical_df(const int n, double m[restrict], double x[restrict][3], double v[restrict][3], const double r_v, const double eps2) {
+void make_spherical_df(const int n, double4 x[restrict], double3 v[restrict], const double r_v, const double eps2) {
     std::random_device rnd; /* get seed from device random generator */
     std::mt19937 mt(rnd()); /* set seed for Mersenne Twister */
 
@@ -20,7 +21,7 @@ void make_spherical_df(const int n, double m[restrict], double x[restrict][3], d
     /* Set mass and position */
     for (int i = 0; i < n; i++) {
         /* Total mass (M) = 1 */
-        m[i] = 1.0 / n;
+        x[i].w = 1.0 / n;
 
         /* Position: generate [-1, 1] double with MT, and then filter*/
         while (true) {
@@ -29,20 +30,20 @@ void make_spherical_df(const int n, double m[restrict], double x[restrict][3], d
             double tmp_z = uni_dist(mt);
 
             if (tmp_x * tmp_x + tmp_y * tmp_y + tmp_z * tmp_z < 1.0) {
-                x[i][0] = tmp_x;
-                x[i][1] = tmp_y;
-                x[i][2] = tmp_z;
+                x[i].x = tmp_x;
+                x[i].y = tmp_y;
+                x[i].z = tmp_z;
                 break;
             }
         }
     }
 
-    const double v_sigma = sqrt(-2.0 * r_v * calc_potential_energy(n, m, x, eps2) / 3.0);
+    const double v_sigma = sqrt(-2.0 * r_v * calc_potential_energy(n, x, eps2) / 3.0);
     std::normal_distribution<> norm_dist(0.0, v_sigma);
     /* Set velocity from maxwell distribution */
     for (int i = 0; i < n; i++) {
-        for (int k = 0; k < 3; k++) {
-            v[i][k] = norm_dist(mt);
-        }
+        v[i].x = norm_dist(mt);
+        v[i].y = norm_dist(mt);
+        v[i].z = norm_dist(mt);
     }
 }

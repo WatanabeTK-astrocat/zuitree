@@ -12,16 +12,16 @@
 #include <iostream>
 #include <fstream>
 
+#include "type.hpp"
 #include "analyze.hpp"
 #include "leapfrog.hpp"
+#include "collapse.hpp"
 #include "gnuplot.hpp"
 #include "initialize.hpp"
 
-//const int NMAX = 16384;
-
-void export_simple_snapshot(std::ofstream &outputfile_realtime, const double t, const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
-    double K = calc_kinetic_energy(n, m, v, eps2);
-    double W = calc_potential_energy(n, m, x, eps2);
+void export_simple_snapshot(std::ofstream &outputfile_realtime, const double t, const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
+    double K = calc_kinetic_energy(n, x, v, eps2);
+    double W = calc_potential_energy(n, x, eps2);
     outputfile_realtime << t << ", " << K << ", " << W << ", " << calc_total_energy(K, W) << ", " << calc_virial_ratio(K, W) << std::endl;
 }
 
@@ -61,13 +61,21 @@ int main() {
     std::cout << "Initializing..." << std::endl;
 
     /* Variables needed for simulation */
-    double m[n], x[n][3], v[n][3], a[n][3];                    /* Particle Data : mass, position, velocity, acceleration */
+    double4 x[n];
+    double3 v[n], a[n];                    /* Particle Data : mass, position, velocity, acceleration */
+    /* init arrays of struct */
+    for (int i = 0; i < n; i++) {
+        x[i] = {0.0, 0.0, 0.0, 0.0};
+        v[i] = {0.0, 0.0, 0.0};
+        a[i] = {0.0, 0.0, 0.0};
+    }
+    
     double t = 0.0;                                            /* current time */
     double next_t_out = T_out;                                 /* next time for exporting */
 
-    make_spherical_df(n, m, x, v, r_v, eps2);
+    make_spherical_df(n, x, v, r_v, eps2);
 
-    const double e_start = calc_total_energy(n, m, x, v, eps2); /* Start system energy */
+    const double e_start = calc_total_energy(n, x, v, eps2); /* Start system energy */
 
     FILE *gp; /* animation window and realtime analyze file */
     if (animation_bool) {
@@ -81,22 +89,35 @@ int main() {
     /* simulation start */
     std::cout << "Simulation started..." << std::endl;
 
-#pragma acc enter data create(m[0:n], x[0:n][0:3], v[0:n][0:3], a[0:n][0:3])
-#pragma acc update device(m[0:n], x[0:n][0:3], v[0:n][0:3], a[0:n][0:3])
+#pragma acc enter data create(x[0:n], v[0:n], a[0:n])
+#pragma acc update device(x[0:n], v[0:n], a[0:n])
 
-    leap_frog_start(n, m, x, v, a, dt, eps2, theta, tree_bool);
+    /* kick start */
+    if (tree_bool) {
+        calc_forces_tree(a, n, x, eps2, theta);
+    } else {
+        calc_forces_direct(a, n, x, eps2);
+    }
+    leap_frog_kick(v, a, n, 0.5 * dt);
 
-    export_simple_snapshot(outputfile_realtime, t, n, m, x, v, eps2);
+    export_simple_snapshot(outputfile_realtime, t, n, x, v, eps2);
 
     while (t < T_end) {
         /* advance time by one timestep */
-        leap_frog_onestep(n, m, x, v, a, dt, eps2, theta, tree_bool);
+        leap_frog_drift(x, v, n, dt);
+
+        if (tree_bool) {
+            calc_forces_tree(a, n, x, eps2, theta);
+        } else {
+            calc_forces_direct(a, n, x, eps2);
+        }
+        leap_frog_kick(v, a, n, dt);
 
         if (t >= next_t_out) {
             /* visualize */
-#pragma acc update host(x[0:n][0:3], v[0:n][0:3])
+#pragma acc update host(x[0:n], v[0:n])
 
-            export_simple_snapshot(outputfile_realtime, t, n, m, x, v, eps2);
+            export_simple_snapshot(outputfile_realtime, t, n, x, v, eps2);
 
             next_t_out = t + T_out;
             if (animation_bool) {
@@ -108,9 +129,9 @@ int main() {
         t += dt;
     }
 
-    leap_frog_finish(n, m, x, v, a, dt, eps2, theta, tree_bool);
+    leap_frog_drift(x, v, n, 0.5 * dt);
 
-#pragma acc exit data delete (m[0:n], x[0:n][0:3], v[0:n][0:3], a[0:n][0:3])
+#pragma acc exit data delete (x[0:n], v[0:n], a[0:n])
 
     /* simulation finish */
     std::cout << "Simulation finished!" << std::endl;
@@ -121,7 +142,7 @@ int main() {
     }
     outputfile_realtime.close();
 
-    const double e_end = calc_total_energy(n, m, x, v, eps2);                                                       /* End system energy */
+    const double e_end = calc_total_energy(n, x, v, eps2);                                                       /* End system energy */
     const double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count() / 1000.0; /* elapsed time*/
 
     /*<< "T_start = " << std::chrono::duration_cast<std::chrono::milliseconds>(t_start).count() / 1000.0 << std::endl

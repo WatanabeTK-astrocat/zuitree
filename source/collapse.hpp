@@ -1,21 +1,20 @@
 /******************************************************************************
- collapse.hpp: practice 1
+ collapse.hpp
  Taichi K. Watanabe
 ******************************************************************************/
 
+#ifndef restrict
+#define restrict
+#endif
+
 #pragma once
 
+#include "type.hpp"
 #include "treenode.hpp"
 
-/* calculate interaction (gravity) force */
-void calc_force(const int n, const double m[restrict], const double x[restrict][3], double a[restrict][3], const double eps2, const double theta);
+/* calculate gravitational force from j-body to i-body */
+void grav_force(double3 a, const double3 dx, const double r2, const double mj);
 
-void set_node_param(NODE *node, const double x, const double y, const double z, const double l, const double theta);
-
-void create_root_node(NODE *root_node, const int n, const double x[restrict][3], const double theta);
-
-void add_particle_to_node(NODE *node, const int particle, const int n, const double x[restrict][3], const double m[restrict], const double theta);
-
-void calc_force_iterative(NODE *node, const int i_particle, const int n, const double m[restrict], const double x[restrict][3], double a[restrict][3], const double eps2);
-
-void calc_force_tree(const int n, const double m[restrict], const double x[restrict][3], double a[restrict][3], const double eps2, const double theta);
+/* calculate gravitational forces for all particles */
+void calc_forces_direct(double3 a[restrict], const int n, const double4 x[restrict], const double eps2);
+void calc_forces_tree(double3 a[restrict], const int n, const double4 x[restrict], const double eps2, const double theta);

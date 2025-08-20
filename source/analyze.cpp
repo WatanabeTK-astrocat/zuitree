@@ -9,28 +9,35 @@
 
 #include <cmath>
 
-double calc_kinetic_energy(const int n, const double m[restrict], const double v[restrict][3], const double eps2) {
+#include "type.hpp"
+
+double calc_kinetic_energy(const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
     double K = 0.0;
     for (int i = 0; i < n; i++) {
-        K += m[i] * (v[i][0] * v[i][0] + v[i][1] * v[i][1] + v[i][2] * v[i][2]);
+        K += x[i].w * (v[i].x * v[i].x + v[i].y * v[i].y + v[i].z * v[i].z);
     }
     K *= 0.5;
 
     return K;
 }
 
-double calc_potential_energy(const int n, const double m[restrict], const double x[restrict][3], const double eps2) {
+double calc_potential_energy(const int n, const double4 x[restrict], const double eps2) {
     double W = 0.0;
     for (int i = 0; i < n - 1; i++) {
+        double3 dx;
+
         for (int j = i + 1; j < n; j++) {
             double r2 = 0.0;
-            for (int k = 0; k < 3; k++) {
-                r2 += (x[j][k] - x[i][k]) * (x[j][k] - x[i][k]);
-            }
+            dx.x = x[j].x - x[i].x;
+            dx.y = x[j].y - x[i].y;
+            dx.z = x[j].z - x[i].z;
 
-            W -= m[i] * m[j] / sqrt(r2 + eps2);
+            double d2 = eps2 + dx.x * dx.x + dx.y * dx.y + dx.z * dx.z;
+
+            W -= x[i].w * x[j].w / sqrt(d2);
         }
     }
+
     return W;
 }
 
@@ -38,14 +45,14 @@ double calc_total_energy(const double K, const double W) {
     return K + W;
 }
 
-double calc_total_energy(const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
-    return calc_total_energy(calc_kinetic_energy(n, m, v, eps2), calc_potential_energy(n, m, x, eps2));
+double calc_total_energy(const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
+    return calc_total_energy(calc_kinetic_energy(n, x, v, eps2), calc_potential_energy(n, x, eps2));
 }
 
 double calc_virial_ratio(const double K, const double W) {
     return -K / W;
 }
 
-double calc_virial_ratio(const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
-    return calc_virial_ratio(calc_kinetic_energy(n, m, v, eps2), calc_potential_energy(n, m, x, eps2));
+double calc_virial_ratio(const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
+    return calc_virial_ratio(calc_kinetic_energy(n, x, v, eps2), calc_potential_energy(n, x, eps2));
 }

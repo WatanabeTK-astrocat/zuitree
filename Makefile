@@ -5,15 +5,15 @@
 # - rulesでは(スペースではなく)タブが必要(文字列とスペースの取り扱いがひどいので)
 
 # compiler environment
-#CXX		= g++
-CXX			= nvc++
+CXX			= g++
+#CXX		= nvc++
 
 # options
-GPU			?= managed
+GPU			?= no
 # managed, nonmanaged, no
 DEBUG		?= yes
 # yes, no
-OPTIMIZE	?= yes
+OPTIMIZE	?= no
 # yes, no
 
 # flags
@@ -22,23 +22,23 @@ CXXFLAGS	= -Wall -Wextra
 LDFLAGS 	=
 
 # options to add for GPU
-ifeq ($(GPU), managed)
+ifeq ($(strip $(GPU)), managed)
     CXXFLAGS	+= -acc=gpu -gpu=cc80,mem:managed -Minfo=accel,opt
     LDFLAGS		+= -acc=gpu -gpu=mem:managed
-else ifeq ($(GPU), nonmanaged)
+else ifeq ($(strip $(GPU)), nonmanaged)
     CXXFLAGS	+= -acc=gpu -gpu=cc80 -Minfo=accel,opt
     LDFLAGS		+= -acc=gpu
 endif
 
 # options to add for debugging
-ifeq ($(DEBUG), yes)
+ifeq ($(strip $(DEBUG)), yes)
     CXXFLAGS 	+= -O0 -g
 else
     CXXFLAGS   	+= -O3 -fast
 endif
 
 # options to add for optimizing
-ifeq ($(OPTIMIZE), yes)
+ifeq ($(strip $(OPTIMIZE)), yes)
     CXXFLAGS 	+= -Mfprelaxed=rsqrt
 endif
 

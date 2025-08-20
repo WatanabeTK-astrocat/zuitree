@@ -3,7 +3,13 @@
  Taichi K. Watanabe
 ******************************************************************************/
 
+#ifndef restrict
+#define restrict
+#endif
+
 #pragma once
 
+#include "type.hpp"
+
 /* create spherical initial state from n, r_v, and eps2 */
-void make_spherical_df(const int n, double m[restrict], double x[restrict][3], double v[restrict][3], const double r_v, const double eps2);
+void make_spherical_df(const int n, double4 x[restrict], double3 v[restrict], const double r_v, const double eps2);
