@@ -34,10 +34,18 @@ double calc_potential_energy(const int n, const double m[restrict], const double
     return W;
 }
 
+double calc_total_energy(const double K, const double W) {
+    return K + W;
+}
+
 double calc_total_energy(const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
-    return calc_kinetic_energy(n, m, v, eps2) + calc_potential_energy(n, m, x, eps2);
+    return calc_total_energy(calc_kinetic_energy(n, m, v, eps2), calc_potential_energy(n, m, x, eps2));
+}
+
+double calc_virial_ratio(const double K, const double W) {
+    return -K / W;
 }
 
 double calc_virial_ratio(const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
-    return -calc_kinetic_energy(n, m, v, eps2) / calc_potential_energy(n, m, x, eps2);
+    return calc_virial_ratio(calc_kinetic_energy(n, m, v, eps2), calc_potential_energy(n, m, x, eps2));
 }

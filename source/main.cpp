@@ -22,7 +22,7 @@
 void export_simple_snapshot(std::ofstream &outputfile_realtime, const double t, const int n, const double m[restrict], const double x[restrict][3], const double v[restrict][3], const double eps2) {
     double K = calc_kinetic_energy(n, m, v, eps2);
     double W = calc_potential_energy(n, m, x, eps2);
-    outputfile_realtime << t << ", " << K << ", " << W << ", " << K + W << ", " << -1.0 * K / W << std::endl;
+    outputfile_realtime << t << ", " << K << ", " << W << ", " << calc_total_energy(K, W) << ", " << calc_virial_ratio(K, W) << std::endl;
 }
 
 int main() {
