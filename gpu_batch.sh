@@ -12,6 +12,8 @@ module load nvhpc/25.7
 
 cd ${SLURM_SUBMIT_DIR}
 
+mkdir -p ./output
+
 FILENAME="$(date +%Y%m%d)_$(date +%H%M).log"
 
-./bin/collapse < ${PARAM} > output/${FILENAME}
+./bin/collapse < ${PARAM} > ./output/${FILENAME}
