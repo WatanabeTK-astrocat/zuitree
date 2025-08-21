@@ -4,6 +4,8 @@
 # - ifeqでは(タブではなく)スペースが必要(文字列とスペースの取り扱いがひどいので)
 # - rulesでは(スペースではなく)タブが必要(文字列とスペースの取り扱いがひどいので)
 
+
+# ========== compiling options ==========
 # compiler environment
 CXX			= g++
 #CXX		= nvc++
@@ -61,19 +63,64 @@ OBJ			= $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(SRC)))
 EXEC		= ./bin/collapse
 
 
-# rules
+# ========== documentation options ==========
+# doxygen
+DOXYGEN  ?= doxygen
+
+# Doxyfile: Doxygen configuration file
+DOXYFILE ?= ./Doxyfile
+
+# Documentation output directory
+DOC_DIR  ?= ./document
+
+
+
+# ========== rules ==========
 all:	$(EXEC)
 
 $(EXEC): $(OBJ) $(LIBS)
-	@mkdir -p ./bin
+	mkdir -p ./bin
 	$(CXX) $(STD) $(CXXFLAGS) $(ARGS) -o $@ $(OBJ) $(LDFLAGS)
 
 $(BUILD_DIR)/%.o:	%.cpp
-	@mkdir -p ./$(BUILD_DIR)/$(SRC_DIR)
+	mkdir -p ./$(BUILD_DIR)/$(SRC_DIR)
 	$(CXX) $(STD) $(CXXFLAGS) $(ARGS) $(INCLUDE) -o $@ -c $<
 
-# clean up
-.PHONY: clean
 
+# phony targets (non-files)
+.PHONY: clean doc document
+
+# clean up
 clean:
 	rm -rf $(EXEC) $(OBJ)
+
+# create documentation
+doc document: doc-check
+	mkdir -p $(DOC_DIR)
+	$(DOXYGEN) $(DOXYFILE)
+
+# check if doxygen is available
+doc-check:
+	@command -v $(DOXYGEN) >/dev/null || { echo "Doxygen not found! Please install doxygen and set path to it."; exit 1; }
+
+# clean documentation
+doc-clean:
+	rm -rf $(DOC_DIR)/*
+
+# open documentation
+doc-open open: doc
+	open $(DOC_DIR)/html/index.html || true
+
+# help command
+help:
+	@echo "Usage: make [target]"
+	@echo "Targets:"
+	@echo "  all        - Build the executable (default for no target)"
+	@echo "  clean      - Remove build artifacts"
+	@echo "  doc        - Generate documentation"
+	@echo "  document   - Alias for doc"
+	@echo "  doc-check  - Check if doxygen is available"
+	@echo "  doc-clean  - Clean documentation output"
+	@echo "  doc-open   - Open the generated documentation in a web browser"
+	@echo "  open       - Alias for doc-open"
+	@echo "  help       - Show this help message"
