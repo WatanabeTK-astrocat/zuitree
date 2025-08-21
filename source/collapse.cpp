@@ -273,6 +273,7 @@ void calc_force_iterative(NODE *node, double3 a[restrict], const int i_particle,
  * @param n     Number of particles.
  * @param x     Position vectors, size n.
  * @param eps2  Softening parameter squared.
+ * @param theta Opening angle for the tree method.
  * 
  * 各力の計算 NlogN:
  * 木構造の作成

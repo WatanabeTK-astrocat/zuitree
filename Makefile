@@ -65,17 +65,22 @@ EXEC		= ./bin/collapse
 
 # ========== documentation options ==========
 # doxygen
-DOXYGEN  ?= doxygen
+DOXYGEN		?= doxygen
 
 # Doxyfile: Doxygen configuration file
-DOXYFILE ?= ./Doxyfile
+DOXYFILE	?= ./Doxyfile
 
 # Documentation output directory
-DOC_DIR  ?= ./document
+DOC_DIR		?= ./document
 
 
 
 # ========== rules ==========
+# phony targets (non-files)
+.PHONY: clean doc document doc-check doc-clean doc-open open help
+
+
+# default target (build)
 all:	$(EXEC)
 
 $(EXEC): $(OBJ) $(LIBS)
@@ -86,13 +91,10 @@ $(BUILD_DIR)/%.o:	%.cpp
 	mkdir -p ./$(BUILD_DIR)/$(SRC_DIR)
 	$(CXX) $(STD) $(CXXFLAGS) $(ARGS) $(INCLUDE) -o $@ -c $<
 
-
-# phony targets (non-files)
-.PHONY: clean doc document
-
 # clean up
 clean:
 	rm -rf $(EXEC) $(OBJ)
+
 
 # create documentation
 doc document: doc-check
@@ -111,11 +113,12 @@ doc-clean:
 doc-open open: doc
 	open $(DOC_DIR)/html/index.html || true
 
+
 # help command
 help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
-	@echo "  all        - Build the executable (default for no target)"
+	@echo "  all        - Build the executable. Default for no target. Does not generate documentation."
 	@echo "  clean      - Remove build artifacts"
 	@echo "  doc        - Generate documentation"
 	@echo "  document   - Alias for doc"

@@ -17,6 +17,15 @@
 
 #include "type.hpp"
 
+/**
+ * @brief Calculates the kinetic energy of a system of particles
+ * 
+ * @param n number of particles
+ * @param x particle positions, size n.
+ * @param v particle velocities, size n.
+ * @param eps2 softening parameter squared
+ * @return double kinetic energy
+ */
 double calc_kinetic_energy(const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
     double K = 0.0;
     for (int i = 0; i < n; i++) {
@@ -27,7 +36,16 @@ double calc_kinetic_energy(const int n, const double4 x[restrict], const double3
     return K;
 }
 
-// needs parallelization using GPU
+/**
+ * @brief Calculates the potential energy of a system of particles
+ * 
+ * @param n number of particles
+ * @param x particle positions, size n.
+ * @param eps2 softening parameter squared
+ * @return double potential energy
+ * 
+ * needs parallelization using GPU
+ */
 double calc_potential_energy(const int n, const double4 x[restrict], const double eps2) {
     double W = 0.0;
     for (int i = 0; i < n - 1; i++) {
@@ -48,18 +66,54 @@ double calc_potential_energy(const int n, const double4 x[restrict], const doubl
     return W;
 }
 
+/**
+ * @brief Calculates the total energy of a system of particles
+ * 
+ * @param K kinetic energy
+ * @param W potential energy
+ * @return double total energy
+ */
 double calc_total_energy(const double K, const double W) {
     return K + W;
 }
 
+/**
+ * @brief Calculates the total energy of a system of particles
+ * 
+ * @param n number of particles
+ * @param x particle positions, size n.
+ * @param v particle velocities, size n.
+ * @param eps2 softening parameter squared
+ * @return double total energy
+ * 
+ * just a wrapper for calc_total_energy(K, W)
+ */
 double calc_total_energy(const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
     return calc_total_energy(calc_kinetic_energy(n, x, v, eps2), calc_potential_energy(n, x, eps2));
 }
 
+/**
+ * @brief Calculates the virial ratio of a system of particles
+ * 
+ * @param K kinetic energy
+ * @param W potential energy
+ * @return double virial ratio
+ */
 double calc_virial_ratio(const double K, const double W) {
     return -K / W;
 }
 
+/**
+ * @brief Calculates the virial ratio of a system of particles
+ * 
+ * @param n number of particles
+ * @param x particle positions, size n.
+ * @param v particle velocities, size n.
+ * @param eps2 softening parameter squared
+ * @return double virial ratio
+ * 
+ * just a wrapper for calc_virial_ratio(K, W)
+ */
 double calc_virial_ratio(const int n, const double4 x[restrict], const double3 v[restrict], const double eps2) {
     return calc_virial_ratio(calc_kinetic_energy(n, x, v, eps2), calc_potential_energy(n, x, eps2));
 }

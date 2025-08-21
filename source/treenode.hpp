@@ -13,13 +13,16 @@
 
 #include "type.hpp"
 
-// tree structure node for the tree method
+/**
+ * @brief tree structure node for the tree method
+ * 
+ */
 typedef struct _NODE {
-    double3 x;   // left bottom down poisition
-    double4 cx;  // center of mass position
-    double l;      // length of cell
-    double lt2;    // threshold for tree force calculation: l over theta squared
-    int particle;  // -100: no particle within -1: multiple particles within 0~: the only particle within
-    struct _NODE *n;
-    struct _NODE *m;
+    double3 x;          // left bottom down position
+    double4 cx;         // center of mass position
+    double l;           // length of cell
+    double lt2;         // threshold for tree force calculation: l over theta squared
+    int particle;       // -100: no particle within -1: multiple particles within 0~: the only particle within
+    struct _NODE *n;    // next sibling node
+    struct _NODE *m;    // more (first child) node
 } NODE;
