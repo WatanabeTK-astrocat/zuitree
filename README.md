@@ -10,13 +10,27 @@ ZUITREEはCfCAのN体学校・GPU講習会に始まった、C++で書かれたN�
 
 ## ビルドの方法
 
-bashターミナル(コンソール)上でこのプロジェクトのディレクトリに入り、
+CMakeを用いてビルドします。以下は基本的な手順です：
 
 ```bash
-make
+mkdir build
+cd build
+cmake ..
+cmake --build .
+ctest
 ```
 
-を実行すれば大丈夫です。out-of-sourceビルドに標準対応。CPU上で動かすのにも対応(オプションを変更してください)。
+`GPU`、`DEBUG`、`OPTIMIZE`といったオプションは`cmake`実行時に指定できます。
+
+```bash
+cmake .. -DGPU=managed -DDEBUG=OFF -DOPTIMIZE=ON
+```
+
+ドキュメント生成は以下のように行います：
+
+```bash
+cmake --build . --target doc
+```
 
 ## 実行方法
 
