@@ -36,18 +36,29 @@ if(OPTIMIZE)
     list(APPEND EXTRA_COMPILE_FLAGS -Mfprelaxed=rsqrt)
 endif()
 
+
 add_executable(collapse ${SOURCES})
 target_include_directories(collapse PRIVATE ${CMAKE_SOURCE_DIR}/source)
 target_compile_options(collapse PRIVATE ${EXTRA_COMPILE_FLAGS})
 target_link_options(collapse PRIVATE ${EXTRA_LINK_FLAGS})
 
-# Testing
+# ========== Nlohman JSON Library ==========
+include(FetchContent)
+FetchContent_Declare(
+  json
+  URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz # update occasionally
+)
+# nlohmann_jsonをターゲットとして使えるようにする
+FetchContent_MakeAvailable(json)
+target_link_libraries(collapse PRIVATE nlohmann_json::nlohmann_json)
+
+# ========== Testing ==========
 enable_testing()
 add_executable(type_test tests/type_test.cpp)
 target_include_directories(type_test PRIVATE ${CMAKE_SOURCE_DIR}/source)
 add_test(NAME type_test COMMAND type_test)
 
-# Doxygen documentation
+# ========== Doxygen documentation ==========
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
     add_custom_target(doc

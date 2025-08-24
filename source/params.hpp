@@ -12,14 +12,18 @@
 #pragma once
 
 #include <iostream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 /**
  * @brief Structure to hold simulation parameters.
  * 
  */
-struct SimulationParams {
-    int animation_bool; // bool for realtime visualizing 0=False, 1=True
-    int tree_bool;      // bool for using tree method. 0=Direct, 1=Tree
+class SimulationParams {
+private:
+    bool animation_bool; // bool for realtime visualizing 0=False, 1=True
+    bool tree_bool;      // bool for using tree method. 0=Direct, 1=Tree
     int n;              // Number of particles
     double r_v;         // Virial ratio = Kinetic Energy (K) / Absolute Potential Energy (|W|)
     double eps;         // Softening Param
@@ -29,25 +33,31 @@ struct SimulationParams {
     double T_end;       // Duration of simulation
     double T_out;       // Time step of data output
 
-    void input_from_cin() {
-        std::cout << "Bool for visualizing (1 for true, 0 for false) = " << std::endl;
-        std::cin >> animation_bool;
-        std::cout << "Bool for using tree method (1 for tree method, 0 for direct method) = " << std::endl;
-        std::cin >> tree_bool;
-        std::cout << "Number of particles = " << std::endl;
-        std::cin >> n;
-        std::cout << "Virial ratio = " << std::endl;
-        std::cin >> r_v;
-        std::cout << "Softening Param = " << std::endl;
-        std::cin >> eps;
-        eps2 = eps * eps;
-        std::cout << "Theta Param = " << std::endl;
-        std::cin >> theta;
-        std::cout << "Time step = " << std::endl;
-        std::cin >> dt;
-        std::cout << "Duration of simulation = " << std::endl;
-        std::cin >> T_end;
-        std::cout << "Time step of data output = " << std::endl;
-        std::cin >> T_out;
-    }
+public:
+    SimulationParams(bool animation_bool_, bool tree_bool_, int n_, double r_v_, double eps_, double theta_, double dt_, double T_end_, double T_out_)
+        : animation_bool(animation_bool_), tree_bool(tree_bool_), n(n_), r_v(r_v_), eps(eps_), eps2(eps_ * eps_), theta(theta_), dt(dt_), T_end(T_end_), T_out(T_out_) {}
+    
+    SimulationParams(json& j)
+        : animation_bool(j.contains("animation_bool") ? j["animation_bool"].template get<bool>() : false),
+          tree_bool(j.contains("tree_bool") ? j["tree_bool"].template get<bool>() : true),
+          n(j.contains("n") ? j["n"].template get<int>() : 1024),
+          r_v(j.contains("r_v") ? j["r_v"].template get<double>() : 0.2),
+          eps(j.contains("eps") ? j["eps"].template get<double>() : 1.5625e-2),
+          eps2(eps * eps),
+          theta(j.contains("theta") ? j["theta"].template get<double>() : 0.2),
+          dt(j.contains("dt") ? j["dt"].template get<double>() : 0.125),
+          T_end(j.contains("T_end") ? j["T_end"].template get<double>() : 10.0),
+          T_out(j.contains("T_out") ? j["T_out"].template get<double>() : 0.125) {}
+
+    // Getters
+    bool get_animation_bool() const { return animation_bool; }
+    bool get_tree_bool() const { return tree_bool; }
+    int get_n() const { return n; }
+    double get_r_v() const { return r_v; }
+    double get_eps2() const { return eps2; }
+    double get_theta() const { return theta; }
+    double get_dt() const { return dt; }
+    double get_T_end() const { return T_end; }
+    double get_T_out() const { return T_out; }
+
 };

@@ -34,7 +34,16 @@ cmake --build . --target doc
 
 ## 実行方法
 
-gpu_batch.shをsbatchでGPUクラスタに送れば良い。
+### 手元のCPU環境で実行する場合
+
+上記のビルドが終わった後、build/bin/collapseという実行ファイルが作られます。パラメータをparams.jsonなどのようにして指定し、次のようにして実行してください：(ワーキングディレクトリはbuildとする)
+```bash
+./bin/collapse ../params.json
+```
+
+### CfCA(など)のGPU環境で実行する場合
+
+モジュールのロードなどを含めたシェルスクリプトとしてgpu_batch.shがあります。これをsbatchでGPUクラスタに送ることで実行できます。
 
 ## コード開発に関するメモ
 

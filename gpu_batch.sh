@@ -4,7 +4,7 @@
 #SBATCH --time=00:05:00
 
 if [ -z "${PARAM}" ]; then
-        PARAM="params.ini"
+        PARAM="./params.json"
 fi
 
 module purge
@@ -16,4 +16,4 @@ mkdir -p ./output
 
 FILENAME="$(date +%Y%m%d)_$(date +%H%M).log"
 
-./bin/collapse < ${PARAM} > ./output/${FILENAME}
+./build/bin/collapse < ${PARAM} > ./output/${FILENAME}

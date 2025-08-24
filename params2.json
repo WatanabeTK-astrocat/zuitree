@@ -1,0 +1,11 @@
+{
+    "animation_bool": true,
+    "tree_bool": true,
+    "n": 1024,
+    "r_v": 0.2,
+    "eps": 0.015625,
+    "theta": 0.1,
+    "dt": 0.0078125,
+    "T_end": 10.0,
+    "T_out": 0.03125
+}
