@@ -22,21 +22,88 @@ using json = nlohmann::json;
  */
 class SimulationParams {
 private:
-    bool animation_bool; // bool for realtime visualizing 0=False, 1=True
-    bool tree_bool;      // bool for using tree method. 0=Direct, 1=Tree
-    int n;              // Number of particles
-    double r_v;         // Virial ratio = Kinetic Energy (K) / Absolute Potential Energy (|W|)
-    double eps;         // Softening Param
-    double eps2;        // Softening Param Squared
-    double theta;       // Theta param
-    double dt;          // Time step
-    double T_end;       // Duration of simulation
-    double T_out;       // Time step of data output
+    /**
+     * @brief Flag for enabling/disabling animation.
+     * 
+     */
+    bool animation_bool;
+
+    /**
+     * @brief Flag for using tree method.
+     * 
+     */
+    bool tree_bool;
+
+    /**
+     * @brief Number of particles.
+     * 
+     */
+    int n;
+
+    /**
+     * @brief Virial ratio = Kinetic Energy (K) / Absolute Potential Energy (|W|).
+     * 
+     */
+    double r_v;
+
+    /**
+     * @brief Softening parameter.
+     * 
+     */
+    double eps;
+
+    /**
+     * @brief Softening parameter squared.
+     * 
+     */
+    double eps2;
+
+    /**
+     * @brief Theta parameter for the tree method.
+     * 
+     */
+    double theta;
+
+    /**
+     * @brief Time step for the simulation.
+     * 
+     */
+    double dt;
+
+    /**
+     * @brief Duration of the simulation.
+     * 
+     */
+    double T_end;
+
+    /**
+     * @brief Time step for data output.
+     * 
+     */
+    double T_out;
 
 public:
+    /**
+     * @brief Construct a new Simulation Params object
+     * 
+     * @param animation_bool_ 
+     * @param tree_bool_ 
+     * @param n_ 
+     * @param r_v_ 
+     * @param eps_ 
+     * @param theta_ 
+     * @param dt_ 
+     * @param T_end_ 
+     * @param T_out_ 
+     */
     SimulationParams(bool animation_bool_, bool tree_bool_, int n_, double r_v_, double eps_, double theta_, double dt_, double T_end_, double T_out_)
         : animation_bool(animation_bool_), tree_bool(tree_bool_), n(n_), r_v(r_v_), eps(eps_), eps2(eps_ * eps_), theta(theta_), dt(dt_), T_end(T_end_), T_out(T_out_) {}
     
+    /**
+     * @brief Construct a new Simulation Params object
+     * 
+     * @param j JSON object containing simulation parameters
+     */
     SimulationParams(json& j)
         : animation_bool(j.contains("animation_bool") ? j["animation_bool"].template get<bool>() : false),
           tree_bool(j.contains("tree_bool") ? j["tree_bool"].template get<bool>() : true),
